@@ -1,0 +1,272 @@
+
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>I O U</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+    <script>
+      window.LoanFactoryAbi = [
+        {
+          "constant": false,
+          "inputs": [
+            {
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "name": "interest",
+              "type": "uint256"
+            }
+          ],
+          "name": "createLoan",
+          "outputs": [],
+          "payable": false,
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": true,
+              "name": "loan",
+              "type": "address"
+            },
+            {
+              "indexed": true,
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "indexed": true,
+              "name": "interest",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "name": "borrower",
+              "type": "address"
+            }
+          ],
+          "name": "NewLoan",
+          "type": "event"
+        },
+        {
+          "constant": true,
+          "inputs": [
+            {
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "name": "loans",
+          "outputs": [
+            {
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "payable": false,
+          "stateMutability": "view",
+          "type": "function"
+        }
+      ];
+      window.LoanContractAbi = [
+      {
+        "constant": false,
+        "inputs": [],
+        "name": "payBack",
+        "outputs": [],
+        "payable": true,
+        "stateMutability": "payable",
+        "type": "function"
+      },
+      {
+        "constant": false,
+        "inputs": [],
+        "name": "lend",
+        "outputs": [],
+        "payable": true,
+        "stateMutability": "payable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "name": "_amount",
+            "type": "uint256"
+          },
+          {
+            "name": "_interest",
+            "type": "uint256"
+          },
+          {
+            "name": "_borrower",
+            "type": "address"
+          }
+        ],
+        "payable": false,
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+      }
+    ];
+    </script>
+  </head>
+  <body>
+
+  <section class="hero">
+  <div class="hero-body">
+    <div class="container">
+      <h1 class="title">
+        Loan factory
+      </h1>
+      <h2 class="subtitle">
+         This page is for <strong>Borrowers</strong>!
+
+        Emit blockchain tracked "I Owe You" notes in a few clicks. Simply decide on the amount and the yearly interest rate you are ready to pay back. Your note will be immediately accessible to prospective investors.
+      </h2>
+    </div>
+  </div>
+</section>
+    <section class="section">
+    <div class="container">
+      <h1 class="title">New IOU note</h1>
+      <h2 class="subtitle">
+  <div class="container">
+    <p class="subtitle">
+        Fill in the fields below to get started
+      </p>
+      <div class="field">
+  <label class="label">IOU because...</label>
+  <div class="control">
+    <input class="input" type="text" placeholder="e.g renovation of Ackerstraße 29- let's kick out those hipsters!">
+  </div>
+<div class="field">
+  <label class="label">Investment needed</label>
+  <div class="control">
+    <input id="amount" class="input" type="text" placeholder="e.g 10 ETH">
+  </div>
+</div>
+
+<div class="field">
+  <label class="label">In 1 year I will pay back</label>
+  <div class="control">
+    <input id="interest" class="input" type="text" placeholder="e.g. 10%">
+  </div>
+</div>
+<div>
+  <button id="emit-button" class="button is-primary">Emit the note now!</button>
+</div>
+</div>
+    </div>
+  </section>
+  <section>
+      <div class="container">
+      <h1 class="title">Outstanding IOU notes</h1>
+      <h2 class="subtitle">
+  <div class="container">
+    <p class="subtitle">
+        Below is a list of already emitted notes
+      </p>
+  <table class="table">
+  <thead>
+    <tr>
+      <th> </th>
+      <th><abbr title="IOU Name">Note name</abbr></th>
+      <th>Date</th>
+      <th><abbr title="Borrower's address">Borrower</abbr></th>
+      <th><abbr title="Contract's address">Contract</abbr></th>
+      <th><abbr title="Amount sought">Sought</abbr></th>
+      <th><abbr title="Amount raised">Raised</abbr></th>
+      <th>Maturity</th>
+      <th>Progress</th>
+      <th><abbr title="Status check">Status</abbr></th>
+    </tr>
+  </thead>
+  <tbody id="table">
+
+  </tbody>
+</table>
+</section>
+
+  </body>
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <p>
+        <strong>"I O U"</strong> by <a href="https://sensiblegrowth.io">Sensible_Growth</a>. The source code is licensed
+        <a href="http://opensource.org/licenses/mit-license.php">MIT</a>. The website content
+        is licensed <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY NC SA 4.0</a>.
+      </p>
+    </div>
+  </div>
+  <script>
+    const loanFactoryContract = web3.eth.contract(window.LoanFactoryAbi).at('0xc2ea9236E5eC30EA8989d4234646ce2bcB25fF89');
+
+    const $amount = document.querySelector('#amount');
+    const $interest = document.querySelector('#interest');
+    const $emitButton = document.querySelector('#emit-button');
+
+    $emitButton.addEventListener('click', () => {
+      web3.eth.getAccounts((err, [address]) => {
+        console.log('Address', address);
+
+        loanFactoryContract.createLoan(parseInt($amount.value, 10), parseInt($interest.value, 10), { from: address }, (err, data) => {
+          console.log(err, data);
+          alert(data);
+        });
+      });
+    });
+
+    const $table = document.querySelector('#table');
+
+    const events = loanFactoryContract.allEvents({fromBlock: 0, toBlock: 'latest'});
+    events.get((e, d) => {
+      console.log('get', e, d);
+      d.forEach((d) => {
+        renderRow(d);
+      })
+    });
+
+    events.watch((e, d) => {
+      console.log('watch', e , d);
+      renderRow(d)
+    });
+
+    function renderRow(data) {
+      const { amount, borrower, interest, loan } = data.args;
+      const $elm = document.createElement('tr');
+      $elm.innerHTML = `
+        <th><a class="button is-light">Repay Now</a></th>
+        <th><strong>....</strong></th>
+        <td>...</td>
+        <td><a href="https://kovan.etherscan.io/tx/${data.transactionHash}" title="Etherscan">${data.transactionHash}</a></td>
+        <td><a href="https://kovan.etherscan.io/address/${data.address}" title="Etherscan">${data.address}</a></td>
+        <td>${amount} Eth</td>
+        <td>X Eth</td>
+        <td>Date</td>
+        <td> <progress class="progress is-success" value="60" max="100">60%</progress></td>
+        <td> <a href="file:///Users/alessiotixi/Documents/GitHub/realchain/U_O_M.html" title="Lender_page">Status</a></td>
+      `;
+
+      const $button = $elm.querySelector('.button');
+      $button.addEventListener('click', () => {
+        web3.eth.getAccounts((err, [address]) => {
+
+          const contract = web3.eth.contract(window.LoanContractAbi).at('0xffacb918d8d7ac4f3d2ad2ac2da741c268fe5f28');
+          contract.payBack({ from: address, value: web3.toWei(amount) }, (e, d)=> {
+            console.log('payBack', e, d);
+          });
+        });
+      });
+
+      $table.appendChild($elm);
+    }
+  </script>
+</footer>
+  </html>
+
