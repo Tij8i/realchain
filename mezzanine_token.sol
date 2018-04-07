@@ -1,13 +1,22 @@
 pragma solidity ^0.4.0;
 contract LoanFactory {
-    Loan[] loans;
-    event NewLoan(address loan);
+    Loan[] public loans;
+    event NewLoan(address loan, uint amount, uint interest, address borrower);
     function createLoan(uint amount,uint interest) public {
         Loan loan=new Loan(amount, interest,msg.sender);
         loans.length++;
         loans[loans.length-1]=loan;
-        emit NewLoan(loan);
+        emit NewLoan(loan, amount, interest, msg.sender);
     }
+   /* 
+    function getAllLoans() public view returns(address[]){
+        address[] memory allLoansAddresses= new address[](loans.length);
+        for (uint i=0; i<loans.length;i++){
+            
+        }
+        return allLoansAddresses;
+    }
+    */
 }
 
 contract Loan {
