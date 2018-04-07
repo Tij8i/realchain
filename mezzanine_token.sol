@@ -1,7 +1,7 @@
 pragma solidity ^0.4.0;
 contract LoanFactory {
     Loan[] public loans;
-    event NewLoan(address loan, uint amount, uint interest, address borrower);
+    event NewLoan(address indexed loan, uint indexed amount, uint indexed interest, address borrower);
     function createLoan(uint amount,uint interest) public {
         Loan loan=new Loan(amount, interest,msg.sender);
         loans.length++;
@@ -20,11 +20,11 @@ contract LoanFactory {
 }
 
 contract Loan {
-    uint private amount; 
-    uint interest;
-    uint totalethersent;
-    address[] lenders;
-    address borrower;
+    uint public amount; 
+    uint public interest;
+    uint public totalethersent;
+    address[] public lenders;
+    address public borrower;
     mapping (address=>uint256) addressSent;
     function Loan(uint _amount,uint _interest,address _borrower)public{
         amount=_amount;
