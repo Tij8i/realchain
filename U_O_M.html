@@ -8,6 +8,113 @@
     <title>U O M</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css">
     <script defer src="https://use.fontawesome.com/releases/v5.0.6/js/all.js"></script>
+    <script>
+        window.LoanFactoryAbi = [
+          {
+            "constant": false,
+            "inputs": [
+              {
+                "name": "amount",
+                "type": "uint256"
+              },
+              {
+                "name": "interest",
+                "type": "uint256"
+              }
+            ],
+            "name": "createLoan",
+            "outputs": [],
+            "payable": false,
+            "stateMutability": "nonpayable",
+            "type": "function"
+          },
+          {
+            "anonymous": false,
+            "inputs": [
+              {
+                "indexed": true,
+                "name": "loan",
+                "type": "address"
+              },
+              {
+                "indexed": true,
+                "name": "amount",
+                "type": "uint256"
+              },
+              {
+                "indexed": true,
+                "name": "interest",
+                "type": "uint256"
+              },
+              {
+                "indexed": false,
+                "name": "borrower",
+                "type": "address"
+              }
+            ],
+            "name": "NewLoan",
+            "type": "event"
+          },
+          {
+            "constant": true,
+            "inputs": [
+              {
+                "name": "",
+                "type": "uint256"
+              }
+            ],
+            "name": "loans",
+            "outputs": [
+              {
+                "name": "",
+                "type": "address"
+              }
+            ],
+            "payable": false,
+            "stateMutability": "view",
+            "type": "function"
+          }
+        ];
+        window.LoanContractAbi = [
+        {
+          "constant": false,
+          "inputs": [],
+          "name": "payBack",
+          "outputs": [],
+          "payable": true,
+          "stateMutability": "payable",
+          "type": "function"
+        },
+        {
+          "constant": false,
+          "inputs": [],
+          "name": "lend",
+          "outputs": [],
+          "payable": true,
+          "stateMutability": "payable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "name": "_amount",
+              "type": "uint256"
+            },
+            {
+              "name": "_interest",
+              "type": "uint256"
+            },
+            {
+              "name": "_borrower",
+              "type": "address"
+            }
+          ],
+          "payable": false,
+          "stateMutability": "nonpayable",
+          "type": "constructor"
+        }
+      ];
+      </script>
   </head>
   <body>
      <section class="hero">
@@ -53,9 +160,9 @@
     </div>
   </article>
 </div>
-</section> 
+</section>
   <div class="container">
-    
+
     <p class="subtitle">
         Details of the IOU note
         <p>
@@ -88,11 +195,11 @@
       <p class="heading">Interest to pay</p>
       <p class="title"> 10%</p>
     </div>
-  </nav> 
+  </nav>
    <div class="row">
       <progress class="progress is-success" value="60" max="100">60%</progress>
 </div>
-      <div class="control"> 
+      <div class="control">
 </div>
 </div>
 </div>
@@ -129,22 +236,39 @@
 </table>
 </div>
 </section>
- <section class="container">   
+ <section class="container">
 
  <div class="columns">
  <div class="control, column">
-  <input class="input is-focused" type="text" placeholder="e.g. 1 Ether">
+  <input id="pledge-input" class="input is-focused" type="text" placeholder="e.g. 1 Ether">
 </div>
   <div class="column">
-    <a class="button is-warning">Pledge now!</a>
+    <a id="pledge-button" class="button is-warning">Pledge now!</a>
   </div>
   <div class="column">
-   
+
   </div>
   <div class="column">
   </div>
 </div>
   </section>
-  </body>
+  <script>
+    const $pledgeInput = document.querySelector('#pledge-input');
+    const $pledgeButton = document.querySelector('#pledge-button');
 
+    const params = window.location.search.replace('?', '').split('&').reduce((acc, arg) => ({...acc, [arg.split('=')[0]]: arg.split('=')[1] }), {})
+    const loanFactoryContract = web3.eth.contract(window.LoanContractAbi).at(params.contract);
+
+    $pledgeButton.addEventListener('click', () => {
+      web3.eth.getAccounts((err, [address]) => {
+        loanFactoryContract.lend({ value: web3.toWei(parseFloat($pledgeInput.value)), from: address }, (e, data) => {
+          console.log('pledge', e, data);
+          alert(data);
+        })
+
+      });
+    });
+
+  </script>
+  </body>
 </html>
